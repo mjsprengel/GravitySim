@@ -1,7 +1,7 @@
 ### Matt Sprengel
 ### 4/23/16       
 # For faster or slower computers, try altering 'dt' variable in
-# the gameon() function to better suit your computer's performance
+# the gameon() function (line 302) to better suit your computer's performance
 # fast computers ---> smaller dt (1/2000.0, 1/5000.0, etc etc)
 # slow computers ---> bigger dt (1/500.0, 1/250.0, etc etc)
 
