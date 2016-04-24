@@ -1,14 +1,9 @@
 ### Matt Sprengel
 ### 4/23/16       
-# This program is an interactive 3 body gravity simulator.
-# Physics calculations are based on the Euler-Cromer method,
-# and summation of forces at each timestep to obtain acceleration.
-# The Euler-Cromer method was chosen for computational simplicity
-# as well as its energy/angular momentum conservation properties.
 # For faster or slower computers, try altering 'dt' variable in
 # the gameon() function to better suit your computer's performance
-# fast computers ---> smaller dt
-# slow computers ---> bigger dt
+# fast computers ---> smaller dt (1/2000.0, 1/5000.0, etc etc)
+# slow computers ---> bigger dt (1/500.0, 1/250.0, etc etc)
 
 from tkinter import *
 import math
