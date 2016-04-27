@@ -1,14 +1,16 @@
 ### Matt Sprengel
 ### 4/23/16       
-# For faster or slower computers, try altering 'dt' variable in
-# the gameon() function (line 302) to better suit your computer's performance
-# fast computers ---> smaller dt (1/2000.0, 1/5000.0, etc etc)
-# slow computers ---> bigger dt (1/500.0, 1/250.0, etc etc)
+# This program is an interactive 3 body gravity simulator.
+# Physics calculations are based on the Euler-Cromer method,
+# and summation of forces at each timestep to obtain acceleration.
+# The Euler-Cromer method was chosen for computational simplicity
+# as well as its energy/angular momentum conservation properties.
 
 from tkinter import *
 import math
+import time
 
-gamestate = 0 #global toggle for start/stop
+gamestate = 2 #global toggle for start/stop
 
 def start(): #this function is bound to the "start" botton
     global gamestate
@@ -44,6 +46,26 @@ def reset(): #resets to initial conditions
     size2 = 7.5*m2**(1.0/3.0)
     size3 = 7.5*m3**(1.0/3.0)
     car()
+
+def speedreset():
+    global r1,v1,a1,r2,v2,a2,r3,v3,a3,gamestate,m1,m2,m3,size1,size2,size3
+    gamestate = 0
+    animation.title("Left click and drag to set position, right click and drag"
+                    " to set velocity. To alter mass, enter number in text box")
+    r1 = [600,300]
+    v1 = [0,4] 
+    a1 = [0,0]
+    r2 = [500,300]
+    v2 = [0,0] 
+    a2 = [0,0]       #semi-stable equilibrium
+    r3 = [400,300]
+    v3 = [0,-4]    
+    a3 = [0,0] 
+    size1 = 7.5*m1**(1.0/3.0)
+    size2 = 7.5*m2**(1.0/3.0)
+    size3 = 7.5*m3**(1.0/3.0)
+    car()
+  
 def setmass1():
     global m1, size1
     m1 = float(mass1.get())
@@ -114,7 +136,7 @@ canvas.pack()
 G = 1000.0 #gravity strength (arbitrarily chosen to suit timestep/screensize)
 
 m1 = 1.0 #mass
-r1 = [600,300] #position 
+r1 = [600.0001,300] #position 
 v1 = [0,4] #velocity 
 a1 = [0,0] #acceleration
 size1 = 7.5*m1**(1.0/3.0) #diameter of balls
@@ -130,6 +152,9 @@ r3 = [400,300]
 v3 = [0,-4]    
 a3 = [0,0]
 size3 = 7.5*m3**(1.0/3.0)
+
+refreshscale = 228
+dt = 1/(refreshscale*4.3859)
 
 #center of mass of the system
 rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),((m1*r1[1] + m2*r2[1] +
@@ -297,9 +322,9 @@ def car():
         animation.update()
         
 def gameon(): #this function contains the physics engine. 
-    global G, m1,r1,v1,a1,size1,m2,r2,v2,a2,size2,m3,r3,v3,a3,size3
-    global gamestate, rcm
-    dt = 1/1000.0 #timestep
+    global G, m1,r1,v1,a1,size1,m2,r2,v2,a2,size2,m3,r3,v3,a3,size3,rcm
+    global gamestate, dt, refreshscale
+    #dt = 1/4.65*refreshscale
     i = 0
     while gamestate == 1:
         i += 1
@@ -354,10 +379,83 @@ def gameon(): #this function contains the physics engine.
         r3 = [r3[0]+dr3[0],r3[1]+dr3[1]]
         rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),
                ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
-        if i%228 == 0: #don't need to update screen EVERY computation
+        if i%refreshscale == 0: #don't need to update screen EVERY computation
             i = 0
             updatescreen()
             showinfo()
             animation.update()
 
-car() #Starts screen update loop
+###Timing the user's CPU on a dummy runthrough of the calculations###
+# This will determine what refreshscale and timestep to use
+
+def SpeedTest():
+    global G, m1,r1,v1,a1,size1,m2,r2,v2,a2,size2,m3,r3,v3,a3,size3,rcm
+    global gamestate, refreshscale, dt
+    t1 = time.clock()
+    i=0
+    while gamestate == 2:
+        i += 1
+        ###Eueler-Cromer integration method applied to a summation of forces###
+        rMag_12 = math.sqrt((r1[0]-r2[0])**2 + (r1[1]-r2[1])**2) 
+        rMag_13 = math.sqrt((r1[0]-r3[0])**2 + (r1[1]-r3[1])**2)
+        rMag_23 = math.sqrt((r2[0]-r3[0])**2 + (r2[1]-r3[1])**2)
+
+        #unit vectors used to resolve acceleration into x,y components
+        rHat_21 = [(r2[0]-r1[0])/rMag_12, (r2[1]-r1[1])/rMag_12] 
+        rHat_12 = [(r1[0]-r2[0])/rMag_12, (r1[1]-r2[1])/rMag_12] 
+
+        rHat_23 = [(r2[0]-r3[0])/rMag_23, (r2[1]-r3[1])/rMag_23] 
+        rHat_32 = [(r3[0]-r2[0])/rMag_23, (r3[1]-r2[1])/rMag_23] 
+
+        rHat_13 = [(r1[0]-r3[0])/rMag_13, (r1[1]-r3[1])/rMag_13] 
+        rHat_31 = [(r3[0]-r1[0])/rMag_13, (r3[1]-r1[1])/rMag_13] 
+        
+        a21Mag = -(m1)*G/(rMag_12**2) #magnitude of the acceleration
+        a12Mag = -(m2)*G/(rMag_12**2) 
+        a23Mag = -(m3)*G/(rMag_23**2)  
+        a32Mag = -(m2)*G/(rMag_23**2) 
+        a13Mag = -(m3)*G/(rMag_13**2)
+        a31Mag = -(m1)*G/(rMag_13**2)
+
+        #each body has x,y component of acceleration due to the other 2 bodies:
+        a2 = [(rHat_21[0]*a21Mag)+(rHat_23[0]*a23Mag),
+              (rHat_21[1]*a21Mag)+(rHat_23[1]*a23Mag)] 
+        a1 = [(rHat_12[0]*a12Mag)+(rHat_13[0]*a13Mag),
+              (rHat_12[1]*a12Mag)+(rHat_13[1]*a13Mag)]
+        a3 = [(rHat_31[0]*a31Mag)+(rHat_32[0]*a32Mag),
+              (rHat_31[1]*a31Mag)+(rHat_32[1]*a32Mag)]
+        
+        #how much the velocity changes by (dv) via dv/dt = a ... (dv = a*dt)
+        dv2 = [a2[0]*dt, a2[1]*dt]
+        dv1 = [a1[0]*dt, a1[1]*dt]
+        dv3 = [a3[0]*dt, a3[1]*dt]
+
+        #updating the velocity of each body by adding dv
+        v2 = [v2[0] + dv2[0], v2[1] + dv2[1]]
+        v1 = [v1[0] + dv1[0], v1[1] + dv1[1]]
+        v3 = [v3[0] + dv3[0], v3[1] + dv3[1]]
+
+        #how much the position changes by (dr) via dr/dt = v ... (dr = v*dt)
+        dr2= [v2[0]*dt, v2[1]*dt]
+        dr1= [v1[0]*dt, v1[1]*dt]
+        dr3= [v3[0]*dt, v3[1]*dt]
+
+        #updating the position of each body by adding dr
+        r2 = [r2[0]+dr2[0],r2[1]+dr2[1]]
+        r1 = [r1[0]+dr1[0],r1[1]+dr1[1]]
+        r3 = [r3[0]+dr3[0],r3[1]+dr3[1]]
+        rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),
+               ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
+        if i%20000 == 0:
+            t2 = time.clock()
+            iters_per_second = 20000.0/(t2-t1)
+            print("Iters per second: ",(iters_per_second))
+            refreshscale = int(iters_per_second/120.0)#120 hz desired
+            print("Iters per screen update: ", refreshscale)
+            dt = 1/(refreshscale*4.3859) ##4.3859 works well.. experimentally
+            print("dt: ", dt)            ## it's the relation between refresh
+            gamestate == 0               ## rate and time step which gives 
+            break                        ## satisfying viewing speed.
+
+SpeedTest()
+speedreset()
