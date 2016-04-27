@@ -391,7 +391,7 @@ def gameon(): #this function contains the physics engine.
 def SpeedTest():
     global G, m1,r1,v1,a1,size1,m2,r2,v2,a2,size2,m3,r3,v3,a3,size3,rcm
     global gamestate, refreshscale, dt
-    t1 = time.clock()
+    t1 = time.time()
     i=0
     while gamestate == 2:
         i += 1
@@ -447,7 +447,7 @@ def SpeedTest():
         rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),
                ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
         if i%20000 == 0:
-            t2 = time.clock()
+            t2 = time.time()
             iters_per_second = 20000.0/(t2-t1)
             print("Iters per second: ",(iters_per_second))
             refreshscale = int(iters_per_second/120.0)#120 hz desired
