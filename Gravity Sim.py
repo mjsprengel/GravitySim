@@ -6,7 +6,10 @@
 # The Euler-Cromer method was chosen for computational simplicity
 # as well as its energy/angular momentum conservation properties.
 
-from Tkinter import *
+try:
+    from tkinter import *
+except ImportError:
+    from Tkinter import *
 import math
 import time
 
