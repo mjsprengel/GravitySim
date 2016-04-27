@@ -327,7 +327,7 @@ def car():
 def gameon(): #this function contains the physics engine. 
     global G, m1,r1,v1,a1,size1,m2,r2,v2,a2,size2,m3,r3,v3,a3,size3,rcm
     global gamestate, dt, refreshscale
-    #dt = 1/4.65*refreshscale
+    dt = 1/(4.65*refreshscale)
     i = 0
     while gamestate == 1:
         i += 1
