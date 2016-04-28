@@ -6,5 +6,5 @@ It uses the Euler-Cromer method to calculate the velocity and position of 3 diff
 
 ## Screenshot
 
-![windowsscreenshot](https://cloud.githubusercontent.com/assets/18639528/14770490/66aaadf8-0a38-11e6-857e-1ef470e86399.png)
+![screenshot](https://cloud.githubusercontent.com/assets/18639528/14873539/75ba35c0-0cbd-11e6-85a2-75c36d3a1668.png)
 
