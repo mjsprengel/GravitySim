@@ -13,7 +13,7 @@ Left-click on a circle and drag it to where ever you'd like. Right click and dra
 # Program flow
 - Tests speed of user's cpu with speedtest(), which sets the global variable 'refreshscale' to give 120 Hz display
 - speedtest() finishes, then triggers car(), which is the interactivity environment without gravity turned on
-- car() runs until start button is clicked, which triggers gameon() 
+- car() runs until start button is clicked, which triggers gameon()
 - gameon() triggers Euler-Cromer calculations and runs until stop button is clicked
 
-- updatescreen() draws the bodies to the screen based on where the physics calculations say they should be. Runs at 120 Hz.
+- updatescreen() runs inside of both car() and gameon(). Runs at 120 Hz. Draws the bodies to the screen based on where the physics calculations say they should be.
