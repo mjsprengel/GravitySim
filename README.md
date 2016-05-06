@@ -16,4 +16,4 @@ Left-click on a circle and drag it to where ever you'd like. Right click and dra
 - car() runs until start button is clicked, which triggers gameon()
 - gameon() triggers Euler-Cromer calculations and runs until stop button is clicked
 
-- updatescreen() runs inside of both car() and gameon(). Runs at 120 Hz. Draws the bodies to the screen based on where the physics calculations say they should be.
+- updatescreen() runs inside of both car() and gameon(). Runs at 120 Hz. Draws the bodies to the screen at the location of the global variables r1, r2, r3.
