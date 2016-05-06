@@ -13,3 +13,10 @@ Left-click on a circle and drag it to where ever you'd like. Right click and dra
 # Challenge to the user
 Can you find another configuration of initial conditions r, v, m, in which all 3 bodies do not lie on the same axis, which yield some stability for at least 1 orbital period? HINT: Think geometry, think symmetry. 
 
+# Program flow
+1.) Tests speed of user's cpu with speedtest(), which sets the global variable 'refreshscale' to give 120 Hz display
+2.) speedtest() finishes, then triggers car(), which is the interactivity environment without gravity turned on
+3.) car() runs until start button is clicked, which triggers gameon() 
+4.) gameon() triggers Euler-Cromer calculations and runs until stop button is clicked
+
+- updatescreen() draws the bodies to the screen based on where the physics calculations say they should be. Runs at 120 Hz.
