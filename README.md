@@ -11,7 +11,7 @@ Left-click on a circle and drag it to where ever you'd like. Right click and dra
 ![screenshot](https://cloud.githubusercontent.com/assets/18639528/14873539/75ba35c0-0cbd-11e6-85a2-75c36d3a1668.png)
 
 # Program flow
-- Tests speed of user's cpu with speedtest(), which sets the global variable 'refreshscale' to give 120 Hz display
+- Tests speed of user's cpu with speedtest(), which calculates what variable 'refreshscale' will give 120 frames per second
 - speedtest() finishes, then triggers car(), which is the interactivity environment without gravity turned on
 - car() runs until start button is clicked, which triggers gameon()
 - gameon() triggers Euler-Cromer calculations and runs until stop button is clicked
