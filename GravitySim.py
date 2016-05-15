@@ -48,7 +48,7 @@ def globalreset(): #utility function used by reset() and speedtest()
     size2 = 7.5*m2**(1.0/3.0)
     size3 = 7.5*m3**(1.0/3.0)
 
-def setmass1():
+def setmass1(): #gets the value inside entry box, sets mass to that value
     global m1, size1
     m1 = float(mass1.get())
     size1 = 7.5*m1**(1.0/3.0)
@@ -63,21 +63,6 @@ def setmass3():
     m3 = float(mass3.get())
     size3 = 7.5*m3**(1.0/3.0)
     mass3.delete(0,'end')
-def getmass1(event): 
-    global m1, size1 
-    m1 = float(mass1.get())
-    size1 = 7.5*m1**(1.0/3.0)
-    mass1.delete(0,'end')
-def getmass2(event):
-    global m2, size2
-    m2 = float(mass2.get())
-    size2 = 7.5*m2**(1.0/3.0)
-    mass2.delete(0,'end')   
-def getmass3(event):
-    global m3, size3  
-    m3 = float(mass3.get())
-    size3 = 7.5*m3**(1.0/3.0)
-    mass3.delete(0,'end')
 
 def speedup(): #bound to speed up button
     global dt
@@ -86,17 +71,22 @@ def slowdown():
     global dt
     dt -= dt*.5
     
-animation = Tk() #creating the GUI canvas and buttons,widgets
+# GUI #
+animation = Tk() 
 animation.title("Left click and drag to set position, right click and drag"
                 " to set velocity. To alter mass, enter number in text box")
 frame = Frame(width = 1000, height = 50, bg = "black")
 frame.pack(fill=BOTH)
+
+# Creating start, stop, reset buttons. Binding them to relevent functions.
 start = Button(frame, text = "Start", command = start, bg ="green")
 start.pack(side = LEFT,padx=5)
 stop = Button(frame, text = "Stop", command = stop, bg = "green")
 stop.pack(side = LEFT,padx=5)
 reset = Button(frame, text = "Reset", command = reset, bg = "green")
 reset.pack(side = LEFT,padx=5)
+
+# Creating mass editing entry box and buttons
 mb1 = Button(frame, text = "Set Mass", command = setmass1, bg="Blue",
              fg = "white")
 mb1.pack(side = RIGHT,padx=10,pady=3)
@@ -114,9 +104,8 @@ mb3.pack(side = RIGHT,padx=10)
 mass3 = Entry(frame, width = 5, bg = "black", fg = "white",
               insertbackground="white",insertwidth=1)
 mass3.pack(side = RIGHT,padx=5)
-mass1.bind('<Return>', getmass1)
-mass2.bind('<Return>', getmass2)
-mass3.bind('<Return>', getmass3)
+
+# Creating speed up and slow down buttons
 speedup = Button(frame, text = "Speed Up", command = speedup, bg ="Black",
                  fg = "White")
 speedup.pack(side = LEFT,padx=20)
@@ -124,6 +113,7 @@ slowdown = Button(frame, text = "Slow Down", command = slowdown, bg = "Black",
                   fg = "White")
 slowdown.pack(side = LEFT,padx=5)
 
+# Creating main black canvas under all of the buttons we just made
 canvas = Canvas(animation, width=1000, height=600, bg="black")
 canvas.pack()
 
@@ -170,12 +160,12 @@ def wasRightClicked(event): #checks to see if ball was rightclicked
         pressed3 = 1
         
 newvel1 = [0,0] #toggles for drag set velocity handler
-newvel2 = [0,0]
-newvel3 = [0,0]
+newvel2 = [0,0] #newvel interim global allows the actual velocity to not instantly
+newvel3 = [0,0] #and continuously change during the right-click+drag
 def MakeVelLine(event): #this func is called upon right-click-motion. Draws.
     global pressed1,newvel1,pressed2,newvel2,pressed3,newvel3
     vxm, vym = event.x, event.y
-    velscale = 10
+    velscale = 10 # bigger velscale ---> less velocity in relation to how far user dragged mouse away from body
     if pressed1 == 1:
         canvas.delete("uno")
         canvas.create_line(r1[0], r1[1], vxm, vym, fill = "green", width = 1,
@@ -214,6 +204,9 @@ def velLineSet(event): #this function is called upon mouse release. Sets vel.
         pressed3 = 0
 
 def showinfo(): #This function runs once every time step. Shows vel, position.
+    # It's kind of spaghetti-mode right now, I want to fix this.
+    # The below conditionals allow for the velocity info to be updated on the screen WHILE drawing velset line
+    # and not just after vel line is released
     if pressed2 == 1:
         str1 = "Yellow:   v = [%.2f, %.2f]\nRed:        v = [%.2f, %.2f]\nB"\
                "lue:       v = [%.2f, %.2f]"%(newvel2[0],newvel2[1],v3[0],
