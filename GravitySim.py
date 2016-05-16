@@ -12,41 +12,26 @@ import time
 title = "Left click and drag to set position, right click and drag to set velocity. To alter mass, enter number in text box"
 
 def start(): #bound to the "start" botton
-    global gamestate
-    gamestate = 1
     animation.title("Calculating...")
-    canvas.delete("uno") 
-    canvas.delete("dos") #deleting velocity indicator lines
-    canvas.delete("tres")
-    gameon() #gameon()starts the physics engine
+    canvas.delete("uno", "dos", "tres") #deleting velocity indicator lines
+    gameon() #starts the physics engine
 
 def stop(): #bound to the "stop" button
-    global gamestate
-    gamestate = 0
     animation.title(title)
-    car() #car() turns off the gravity 
+    car() #turns off the gravity 
 
 def reset(): #bound to reset button
-    global r1,v1,a1,r2,v2,a2,r3,v3,a3,gamestate,m1,m2,m3,size1,size2,size3,dt
-    gamestate = 0
+    global r1,v1,a1,r2,v2,a2,r3,v3,a3,m1,m2,m3,size1,size2,size3,dt
     animation.title(title)
     globalreset()
     car()
 
 def globalreset(): #utility function used by reset() and speedtest()
     global r1,v1,a1,r2,v2,a2,r3,v3,a3,m1,m2,m3,size1,size2,size3
-    r1 = [600,300]
-    v1 = [0,4] 
-    a1 = [0,0]
-    r2 = [500,300]
-    v2 = [0,0] 
-    a2 = [0,0]       
-    r3 = [400,300]
-    v3 = [0,-4]    
-    a3 = [0,0] 
-    size1 = 7.5*m1**(1.0/3.0)
-    size2 = 7.5*m2**(1.0/3.0)
-    size3 = 7.5*m3**(1.0/3.0)
+    r1, v1, a1 = [600,300], [0,4], [0,0]
+    r2, v2, a2 = [500,300], [0,0], [0,0]       
+    r3, v3, a3 = [400,300], [0,-4], [0,0] 
+    size1,size2,size3 = 7.5*m1**(1.0/3.0), 7.5*m2**(1.0/3.0), 7.5*m3**(1.0/3.0)
 
 def setmass1(): #gets the value inside entry box, sets mass to that value
     global m1, size1
@@ -255,10 +240,7 @@ canvas.bind('<B3-Motion>',MakeVelLine)
 canvas.bind('<ButtonRelease-3>',velLineSet)
 
 def updatescreen(): #deletes old, draws new circles at current position
-    canvas.delete("blue")
-    canvas.delete("yellow")
-    canvas.delete("red")
-    canvas.delete("cm")
+    canvas.delete("blue", "yellow", "red", "cm")
     canvas.create_oval(r1[0]-(size1/2),r1[1]-(size1/2),r1[0]+(size1/2),r1[1]+
                        (size1/2), outline = "blue", fill = "blue", tags="blue")
     canvas.create_oval(r2[0]-(size2/2),r2[1]-(size2/2),r2[0]+(size2/2),r2[1]+
@@ -268,10 +250,9 @@ def updatescreen(): #deletes old, draws new circles at current position
                        (size3/2), outline = "red", fill = "red", tags="red")
     canvas.create_oval(rcm[0]-(1),rcm[1]-(1),rcm[0]+(1),rcm[1]+(1),
                        outline = "white", fill = "white", tags="cm")
-
     showinfo()
     animation.update()
-
+    
 #GLOBAL PHYSICS VARIABLES#
 #r = position, v = velocity, a = acceleration, m = mass
 G = 1000.0 
@@ -297,17 +278,17 @@ def calculate_trajectories(): #Euler-Cromer Method
     rMag_13 = math.sqrt((r1[0]-r3[0])**2 + (r1[1]-r3[1])**2)
     rMag_23 = math.sqrt((r2[0]-r3[0])**2 + (r2[1]-r3[1])**2)
     rHat_21 = [(r2[0]-r1[0])/rMag_12, (r2[1]-r1[1])/rMag_12] 
-    rHat_12 = [(r1[0]-r2[0])/rMag_12, (r1[1]-r2[1])/rMag_12] 
+    rHat_12 = [-rHat_21[0], -rHat_21[1]] 
     rHat_23 = [(r2[0]-r3[0])/rMag_23, (r2[1]-r3[1])/rMag_23] 
-    rHat_32 = [(r3[0]-r2[0])/rMag_23, (r3[1]-r2[1])/rMag_23] 
+    rHat_32 = [-rHat_23[0], -rHat_23[1]] 
     rHat_13 = [(r1[0]-r3[0])/rMag_13, (r1[1]-r3[1])/rMag_13] 
-    rHat_31 = [(r3[0]-r1[0])/rMag_13, (r3[1]-r1[1])/rMag_13] 
+    rHat_31 = [-rHat_13[0], -rHat_13[1]] 
     a21Mag = -(m1)*G/(rMag_12**2)
-    a12Mag = -(m2)*G/(rMag_12**2) 
+    a12Mag = a21Mag*(m2/m1) 
     a23Mag = -(m3)*G/(rMag_23**2)  
-    a32Mag = -(m2)*G/(rMag_23**2) 
+    a32Mag = a23Mag*(m2/m3) 
     a13Mag = -(m3)*G/(rMag_13**2)
-    a31Mag = -(m1)*G/(rMag_13**2)
+    a31Mag = a13Mag*(m1/m3)
     a2 = [(rHat_21[0]*a21Mag)+(rHat_23[0]*a23Mag),
           (rHat_21[1]*a21Mag)+(rHat_23[1]*a23Mag)] 
     a1 = [(rHat_12[0]*a12Mag)+(rHat_13[0]*a13Mag),
@@ -325,6 +306,7 @@ def calculate_trajectories(): #Euler-Cromer Method
 
 def car(): #draws scene whenever the calculations aren't running 
     global r1,r2,r3,size1,size2,size3,gamestate,rcm
+    gamestate = 0
     while gamestate == 0:
         rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),
            ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
@@ -334,6 +316,7 @@ def gameon(): #runs the physics in a loop until told to stop
     global G, m1,r1,v1,a1,m2,r2,v2,a2,m3,r3,v3,a3,rcm
     global gamestate, dt, refreshscale
     i = 0
+    gamestate = 1
     while gamestate == 1:
         i += 1
         calculate_trajectories()
@@ -356,7 +339,6 @@ def SpeedTest():
             print("Euler-Cromer iterations per second: %d" % int(iters_per_second))
             refreshscale = int(iters_per_second/120.0)#120 hz desired
             dt = 1/(refreshscale*4.3859) ##4.3859 works well.. experimentally           
-            gamestate = 0
             animation.title(title)
             globalreset()
             car()
