@@ -58,8 +58,7 @@ def slowdown():
     
 # GUI #
 animation = Tk() 
-animation.title("Left click and drag to set position, right click and drag"
-                " to set velocity. To alter mass, enter number in text box")
+animation.title(title)
 frame = Frame(width = 1000, height = 50, bg = "black")
 frame.pack(fill=BOTH)
 
