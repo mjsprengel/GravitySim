@@ -240,7 +240,7 @@ def calculate_trajectories(): #Euler-Cromer Method
            ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
 
 def car(): #draws scene whenever the calculations aren't running 
-    global r1,r2,r3,size1,size2,size3,gamestate,rcm
+    global gamestate,rcm
     animation.title(title)
     gamestate = 0
     j = 0
@@ -253,8 +253,7 @@ def car(): #draws scene whenever the calculations aren't running
             j = 0
 
 def gameon(): #runs the physics in a loop until told to stop 
-    global G, m1,r1,v1,a1,m2,r2,v2,a2,m3,r3,v3,a3,rcm
-    global gamestate, dt, refreshscale
+    global gamestate
     animation.title("Calculating...")
     canvas.delete("uno", "dos", "tres") #deleting velocity indicator lines
     i = 0
@@ -318,8 +317,7 @@ canvas.bind('<ButtonRelease-3>',velLineSet)
 
 ###Timing the user's CPU on a dummy runthrough of the calculations###
 def SpeedTest():
-    global G, m1,r1,v1,a1,m2,r2,v2,a2,m3,r3,v3,a3,rcm
-    global gamestate, refreshscale, dt
+    global refreshscale, dt
     t1 = time.time()
     i = 0
     while gamestate == 2:
