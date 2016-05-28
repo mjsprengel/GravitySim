@@ -11,27 +11,14 @@ import time
 
 title = "Left click and drag to set position, right click and drag to set velocity. To alter mass, enter number in text box"
 
-def start(): #bound to the "start" botton
-    animation.title("Calculating...")
-    canvas.delete("uno", "dos", "tres") #deleting velocity indicator lines
-    gameon() #starts the physics engine
-
-def stop(): #bound to the "stop" button
-    animation.title(title)
-    car() #turns off the gravity 
-
-def reset(): #bound to reset button
-    global r1,v1,a1,r2,v2,a2,r3,v3,a3,m1,m2,m3,size1,size2,size3,dt
-    animation.title(title)
-    globalreset()
-    car()
-
-def globalreset(): #utility function used by reset() and speedtest()
+def globalreset(): #utility function used by both speedtest() and 'reset' button
     global r1,v1,a1,r2,v2,a2,r3,v3,a3,m1,m2,m3,size1,size2,size3
     r1, v1, a1 = [600,300], [0,4], [0,0]
     r2, v2, a2 = [500,300], [0,0], [0,0]       
     r3, v3, a3 = [400,300], [0,-4], [0,0] 
     size1,size2,size3 = 7.5*m1**(1.0/3.0), 7.5*m2**(1.0/3.0), 7.5*m3**(1.0/3.0)
+    canvas.delete("uno","dos","tres")#deleting velocity indicator lines
+    car()
 
 def setmass1(): #gets the value inside entry box, sets mass to that value
     global m1, size1
@@ -55,51 +42,6 @@ def speedup(): #bound to speed up button
 def slowdown():
     global dt
     dt -= dt*.5
-    
-# GUI #
-animation = Tk() 
-animation.title(title)
-frame = Frame(width = 1000, height = 50, bg = "black")
-frame.pack(fill=BOTH)
-
-# Creating start, stop, reset buttons. Binding them to relevent functions.
-start = Button(frame, text = "Start", command = start, bg ="green")
-start.pack(side = LEFT,padx=5)
-stop = Button(frame, text = "Stop", command = stop, bg = "green")
-stop.pack(side = LEFT,padx=5)
-reset = Button(frame, text = "Reset", command = reset, bg = "green")
-reset.pack(side = LEFT,padx=5)
-
-# Creating mass editing entry box and buttons
-mb1 = Button(frame, text = "Set Mass", command = setmass1, bg="Blue",
-             fg = "white")
-mb1.pack(side = RIGHT,padx=10,pady=3)
-mass1 = Entry(frame, width = 5, bg = "black", fg = "white",
-              insertbackground="white",insertwidth=1)
-mass1.pack(side = RIGHT,padx=5)
-mb2 = Button(frame, text = "Set Mass", command = setmass2, bg="Yellow")
-mb2.pack(side = RIGHT,padx=10)
-mass2 = Entry(frame, width = 5, bg = "black", fg = "white",
-              insertbackground="white",insertwidth=1)
-mass2.pack(side = RIGHT,padx=5)
-mb3 = Button(frame, text = "Set Mass", command = setmass3, bg="Red",
-             fg = "white")
-mb3.pack(side = RIGHT,padx=10)
-mass3 = Entry(frame, width = 5, bg = "black", fg = "white",
-              insertbackground="white",insertwidth=1)
-mass3.pack(side = RIGHT,padx=5)
-
-# Creating speed up and slow down buttons
-speedup = Button(frame, text = "Speed Up", command = speedup, bg ="Black",
-                 fg = "White")
-speedup.pack(side = LEFT,padx=20)
-slowdown = Button(frame, text = "Slow Down", command = slowdown, bg = "Black",
-                  fg = "White")
-slowdown.pack(side = LEFT,padx=5)
-
-# Creating main black canvas under all of the buttons we just made
-canvas = Canvas(animation, width=1000, height=600, bg="black")
-canvas.pack()
 
 def drag(event): #changes the location of the body to current mouse coordinates
     xm, ym = event.x, event.y
@@ -188,7 +130,6 @@ def velLineSet(event): #this function is called upon mouse release. Sets vel.
         pressed3 = 0
 
 def showinfo(): #This function runs once every time step. Shows vel, position.
-    # It's kind of spaghetti-mode right now, I want to fix this.
     # The below conditionals allow for the velocity info to be updated on the screen WHILE drawing velset line
     # and not just after vel line is released
     if pressed2 == 1:
@@ -232,11 +173,6 @@ def showinfo(): #This function runs once every time step. Shows vel, position.
     str5 = "Euler-Cromer Method"
     canvas.delete("RAWR")
     canvas.create_text(990,590, text = str5, fill = "green", anchor=E, justify=RIGHT, tags = "RAWR")
- 
-canvas.bind('<B1-Motion>',drag) #Binds left click to drag()
-canvas.bind('<Button-3>',wasRightClicked)
-canvas.bind('<B3-Motion>',MakeVelLine)
-canvas.bind('<ButtonRelease-3>',velLineSet)
 
 def updatescreen(): #deletes old, draws new circles at current position
     canvas.delete("blue", "yellow", "red", "cm")
@@ -305,15 +241,22 @@ def calculate_trajectories(): #Euler-Cromer Method
 
 def car(): #draws scene whenever the calculations aren't running 
     global r1,r2,r3,size1,size2,size3,gamestate,rcm
+    animation.title(title)
     gamestate = 0
+    j = 0
     while gamestate == 0:
+        j += 1
         rcm = [(m1*r1[0] + m2*r2[0] + m3*r3[0])/(m1+m2+m3),
            ((m1*r1[1] + m2*r2[1] + m3*r3[1])/(m1+m2+m3))]
-        updatescreen()
-        
+        if j%refreshscale == 0:
+            updatescreen()
+            j = 0
+
 def gameon(): #runs the physics in a loop until told to stop 
     global G, m1,r1,v1,a1,m2,r2,v2,a2,m3,r3,v3,a3,rcm
     global gamestate, dt, refreshscale
+    animation.title("Calculating...")
+    canvas.delete("uno", "dos", "tres") #deleting velocity indicator lines
     i = 0
     gamestate = 1
     while gamestate == 1:
@@ -322,6 +265,56 @@ def gameon(): #runs the physics in a loop until told to stop
         if i%refreshscale == 0: #only updates screen here
             i = 0
             updatescreen()
+    
+### GUI Screen, widgets, buttons, bindings ###
+animation = Tk() 
+animation.title(title)
+frame = Frame(width = 1000, height = 50, bg = "black")
+frame.pack(fill=BOTH)
+
+# Creating start, stop, reset buttons. Binding them to relevent functions.
+start = Button(frame, text = "Start", command = gameon, bg ="green")
+start.pack(side = LEFT,padx=5)
+stop = Button(frame, text = "Stop", command = car, bg = "green")
+stop.pack(side = LEFT,padx=5)
+reset = Button(frame, text = "Reset", command = globalreset, bg = "green")
+reset.pack(side = LEFT,padx=5)
+
+# Creating mass editing entry box and buttons
+mb1 = Button(frame, text = "Set Mass", command = setmass1, bg="Blue",
+             fg = "white")
+mb1.pack(side = RIGHT,padx=10,pady=3)
+mass1 = Entry(frame, width = 5, bg = "black", fg = "white",
+              insertbackground="white",insertwidth=1)
+mass1.pack(side = RIGHT,padx=5)
+mb2 = Button(frame, text = "Set Mass", command = setmass2, bg="Yellow")
+mb2.pack(side = RIGHT,padx=10)
+mass2 = Entry(frame, width = 5, bg = "black", fg = "white",
+              insertbackground="white",insertwidth=1)
+mass2.pack(side = RIGHT,padx=5)
+mb3 = Button(frame, text = "Set Mass", command = setmass3, bg="Red",
+             fg = "white")
+mb3.pack(side = RIGHT,padx=10)
+mass3 = Entry(frame, width = 5, bg = "black", fg = "white",
+              insertbackground="white",insertwidth=1)
+mass3.pack(side = RIGHT,padx=5)
+
+# Creating speed up and slow down buttons
+speedup = Button(frame, text = "Speed Up", command = speedup, bg ="Black",
+                 fg = "White")
+speedup.pack(side = LEFT,padx=20)
+slowdown = Button(frame, text = "Slow Down", command = slowdown, bg = "Black",
+                  fg = "White")
+slowdown.pack(side = LEFT,padx=5)
+
+# Creating main black canvas under all of the buttons we just made
+canvas = Canvas(animation, width=1000, height=600, bg="black")
+canvas.pack()
+#Binding mouse movements and events to their corresponding functions
+canvas.bind('<B1-Motion>',drag) 
+canvas.bind('<Button-3>',wasRightClicked)
+canvas.bind('<B3-Motion>',MakeVelLine)
+canvas.bind('<ButtonRelease-3>',velLineSet)
 
 ###Timing the user's CPU on a dummy runthrough of the calculations###
 def SpeedTest():
@@ -338,13 +331,10 @@ def SpeedTest():
             print("Euler-Cromer iterations per second: %d" % int(iters_per_second))
             refreshscale = int(iters_per_second/120.0)#120 hz desired
             dt = 1/(refreshscale*4.3859) ##4.3859 works well.. experimentally           
-            animation.title(title)
             globalreset()
-            car()
             break                        
 
 updatescreen() 
-refreshscale = 0.0 
-dt = 0.0
-gamestate = 2
+refreshscale, dt = 0, 0.0 #initializing refreshscale and timestep
+gamestate = 2 
 SpeedTest() #computes dt and refresh scale ---> also starts main loop
